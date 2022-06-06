@@ -1,0 +1,54 @@
+#include <bits/stdc++.h> 
+int query(int i,int l,int r,int x,int y,vector<int>& g)
+{
+    if(l>=x && r<=y)return g[i];
+    if(l>y || r<x)return 0;
+    int mid = (l+r)/2;
+    return query(2*i+1,l,mid,x,y,g)+query(2*i+2,mid+1,r,x,y,g);
+}
+void update(int i,int l,int r,int j,vector<int>& g)
+{
+    if(l==r)g[i]+=1;
+    else
+    {
+        int mid = (l+r)/2;
+        if(j<=mid)update(2*i+1,l,mid,j,g);
+        else update(2*i+2,mid+1,r,j,g);
+        g[i] = g[2*i+1]+g[2*i+2];
+    }
+}
+int reversePairs(vector<int> &v, int n){
+        ios_base::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL);
+        set<int> st;
+        for(int i:v)st.insert(i);
+        map<int,int> mp;
+        int cnt = 0;
+        for(int i:st)mp[i]=cnt++;
+        n = st.size();
+        vector<int> g(4*n+5,0);
+        int ans = 0;
+        reverse(v.begin(),v.end());
+        for(int i:v)
+        {
+            int t = i;
+            int k;
+            if(t>=0)
+            {
+                k = t/2;
+                if(t%2==0)k--;
+            }
+            else 
+            {
+                k = t/2;k--;
+            }
+            auto j = mp.upper_bound(k);
+            if(j!=mp.begin())
+            {
+                j--;
+                k = j->second;
+                ans += query(0,0,n-1,0,k,g);
+            }
+            update(0,0,n-1,mp[i],g);
+        }
+        return ans;
+}
